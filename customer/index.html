@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account - Quantum E-Commerce</title>
+  <meta name="description" content="Manage your Quantum account profile, personal details, and view your full order transaction history.">
+  <link rel="stylesheet" href="../shared/global.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .profile-hero { background: linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; display: flex; align-items: center; gap: 28px; position: relative; overflow: hidden; }
+    .profile-hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(99,102,241,0.15), transparent 70%); pointer-events: none; }
+    .profile-avatar-lg { width: 88px; height: 88px; border-radius: var(--radius-full); background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; color: white; flex-shrink: 0; box-shadow: 0 0 0 4px rgba(99,102,241,0.2), var(--shadow-md); position: relative; }
+    .avatar-status-dot { position: absolute; bottom: 4px; right: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--success); border: 3px solid var(--bg-card); box-shadow: 0 0 8px var(--success); }
+    .profile-hero-info { flex: 1; }
+    .profile-hero-info h2 { font-size: 1.6rem; font-weight: 700; }
+    .profile-hero-info p { color: var(--text-secondary); font-size: 0.9rem; margin-top: 4px; }
+    .profile-hero-badges { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--accent-glow); border: 1px solid rgba(99,102,241,0.3); color: var(--accent); padding: 4px 12px; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600; }
+    .hero-badge.green { background: var(--success-bg); border-color: rgba(16,185,129,0.3); color: var(--success); }
+    .profile-stats { display: flex; gap: 32px; margin-left: auto; flex-shrink: 0; }
+    .profile-stat { text-align: center; }
+    .profile-stat-val { font-size: 1.6rem; font-weight: 700; }
+    .profile-stat-lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    .content-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 24px; align-items: start; }
+    .section-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 16px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .tx-amount-positive { color: var(--success); font-weight: 600; }
+    .tx-amount-negative { color: var(--danger); font-weight: 600; }
+    .tx-order-id { font-family: 'Courier New', monospace; font-size: 0.8rem; color: var(--text-secondary); background: var(--bg-input); padding: 2px 8px; border-radius: 4px; }
+    .form-input[readonly] { opacity: 0.55; cursor: not-allowed; }
+    .form-input[readonly]:focus { border-color: var(--border); box-shadow: none; }
+    .customer-nav-divider { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); padding: 8px 16px 4px; margin-top: 8px; }
+    @media (max-width: 900px) { .content-grid { grid-template-columns: 1fr; } .profile-stats { display: none; } .profile-hero { flex-wrap: wrap; } }
+    @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo"><i data-lucide="layers"></i></div>
+        <span class="sidebar-brand-name">QUANTUM</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="customer-nav-divider">My Account</div>
+        <a href="#profile" class="nav-item active" data-section="profile"><i data-lucide="user-circle"></i><span>Profile</span></a>
+        <a href="#orders" class="nav-item" data-section="orders"><i data-lucide="shopping-bag"></i><span>Orders</span></a>
+        <a href="#transactions" class="nav-item" data-section="transactions"><i data-lucide="receipt"></i><span>Transactions</span></a>
+        <a href="#wishlist" class="nav-item" data-section="wishlist"><i data-lucide="heart"></i><span>Wishlist</span></a>
+        <div class="customer-nav-divider" style="margin-top:16px">Settings</div>
+        <a href="#security" class="nav-item" data-section="security"><i data-lucide="shield-check"></i><span>Security</span></a>
+        <a href="#notifications" class="nav-item" data-section="notifications"><i data-lucide="bell"></i><span>Notifications</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-avatar" id="customer-avatar-sidebar">?</div>
+        <div class="user-info"><span class="user-name" id="sidebar-user-name">Loading...</span><span class="user-role">Customer</span></div>
+        <button class="icon-btn" style="margin-left:auto" title="Sign out"><i data-lucide="log-out"></i></button>
+      </div>
+    </aside>
+    <main class="main-content">
+      <header class="header">
+        <div class="header-title-block"><h1 id="page-title">My Profile</h1><p id="page-subtitle">Manage your personal information and account preferences</p></div>
+        <div class="header-actions">
+          <button class="icon-btn" title="Notifications"><i data-lucide="bell" style="width:18px;height:18px"></i><span class="notification-badge"></span></button>
+          <button class="btn btn-primary" id="btn-edit-profile"><i data-lucide="pencil" style="width:16px;height:16px"></i>Edit Profile</button>
+        </div>
+      </header>
+      <section class="profile-hero">
+        <div class="profile-avatar-lg" id="hero-avatar">--</div>
+        <div class="profile-hero-info">
+          <h2 id="hero-name">Loading...</h2>
+          <p id="hero-email">-</p>
+          <div class="profile-hero-badges">
+            <span class="hero-badge green"><i data-lucide="check-circle" style="width:12px;height:12px"></i>Verified Account</span>
+            <span class="hero-badge"><i data-lucide="star" style="width:12px;height:12px"></i>Premium Member</span>
+          </div>
+        </div>
+        <div class="profile-stats">
+          <div class="profile-stat"><div class="profile-stat-val" id="stat-orders">--</div><div class="profile-stat-lbl">Orders</div></div>
+          <div class="profile-stat"><div class="profile-stat-val" id="stat-spent">--</div><div class="profile-stat-lbl">Total Spent</div></div>
+          <div class="profile-stat"><div class="profile-stat-val" id="stat-points">--</div><div class="profile-stat-lbl">Points</div></div>
+        </div>
+      </section>
+      <div class="content-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-title-block"><h2>Account Details</h2><p>Your personal information on file</p></div></div>
+          <form id="profile-form" style="padding:24px;display:flex;flex-direction:column;gap:20px">
+            <div><p class="section-label">Personal Info</p><div class="form-row"><div class="form-group"><label for="field-first-name">First Name</label><input id="field-first-name" type="text" class="form-input" readonly></div><div class="form-group"><label for="field-last-name">Last Name</label><input id="field-last-name" type="text" class="form-input" readonly></div></div></div>
+            <div><p class="section-label">Contact Info</p><div style="display:flex;flex-direction:column;gap:16px"><div class="form-group"><label for="field-email">Email Address</label><input id="field-email" type="email" class="form-input" readonly></div><div class="form-group"><label for="field-phone">Phone Number</label><input id="field-phone" type="tel" class="form-input" readonly></div></div></div>
+            <div><p class="section-label">Address</p><div style="display:flex;flex-direction:column;gap:16px"><div class="form-group"><label for="field-address">Street Address</label><input id="field-address" type="text" class="form-input" readonly></div><div class="form-row"><div class="form-group"><label for="field-city">City</label><input id="field-city" type="text" class="form-input" readonly></div><div class="form-group"><label for="field-zip">ZIP / Post Code</label><input id="field-zip" type="text" class="form-input" readonly></div></div></div></div>
+            <div id="form-actions" style="display:none;justify-content:flex-end;gap:12px;padding-top:8px;border-top:1px solid var(--border)">
+              <button type="button" class="btn btn-secondary" id="btn-cancel-edit">Cancel</button>
+              <button type="submit" class="btn btn-primary"><i data-lucide="save" style="width:16px;height:16px"></i>Save Changes</button>
+            </div>
+          </form>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-block"><h2>Transaction History</h2><p id="tx-subtitle">Recent purchases and payments</p></div>
+            <div class="card-actions"><div class="search-bar" style="width:200px;background-color:var(--bg-app)"><i data-lucide="search" style="color:var(--text-muted);width:16px;height:16px"></i><input type="text" id="tx-search" placeholder="Search orders..."></div></div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead><tr><th>Order ID</th><th>Item(s)</th><th>Status</th><th>Date</th><th style="text-align:right">Amount</th></tr></thead>
+              <tbody id="tx-table-body"></tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            <div><span id="tx-showing">0</span> of <span id="tx-total">0</span> transactions</div>
+            <div style="color:var(--text-muted);font-size:0.8rem" id="tx-total-spent">Total spent: <strong style="color:var(--text-primary)">$0.00</strong></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="toast-container" id="toast-container"></div>
+  <script src="customer.js"></script>
+</body>
+</html>
